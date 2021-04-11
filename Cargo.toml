@@ -1,0 +1,16 @@
+[package]
+name = "prayers"
+version = "0.1.0"
+edition = "2018"
+authors = ["Mestery <mestery@pm.me>"]
+license = "MIT"
+description = "Lightweight and highly accurate low-level library for calculating (Islamic) prayer times"
+documentation = "https://docs.rs/prayers"
+readme = "README.md"
+repository = "https://github.com/mesteery/praye.rs"
+homepage = "https://github.com/mesteery/praye.rs#homepage"
+keywords = ["islamic", "prayer-times", "prayer", "prayers", "lightweight"]
+categories = ["accessibility", "date-and-time", "mathematics"]
+
+[dependencies]
+chrono = "0.4.19"
