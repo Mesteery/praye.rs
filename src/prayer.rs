@@ -16,41 +16,49 @@ impl CalculationType {
 }
 
 /// The mean time type
-pub enum MeanTimeType {
+pub enum MidnightMethod {
 	/// from Sunset to Sunrise
 	Standard,
 	/// from Sunset to Fajr
 	Jafari,
 }
 
+/// The asr juristic methods
+pub enum AsrJuristic {
+	Standard,
+	Hanafi,
+}
+
 /// Represents a calculation method (parameters)
 pub struct CalculationMethod {
 	imsak: CalculationType,
+	/// angle
 	fajr: f64,
-	duhr: f64,
-	asr: MeanTimeType,
+	/// in minutes
+	dhuhr: f64,
+	asr: AsrJuristic,
 	maghrib: CalculationType,
 	isha: CalculationType,
-	midnight: MeanTimeType,
+	midnight: MidnightMethod,
 }
 
 impl CalculationMethod {
 	pub fn new(
 		imsak: Option<CalculationType>,
 		fajr: f64,
-		asr: Option<MeanTimeType>,
+		asr: Option<AsrJuristic>,
 		maghrib: Option<CalculationType>,
 		isha: CalculationType,
-		midnight: Option<MeanTimeType>,
+		midnight: Option<MidnightMethod>,
 	) -> CalculationMethod {
 		CalculationMethod {
 			imsak: imsak.unwrap_or(CalculationType::Minutes(10.0)),
 			fajr,
-			duhr: 0.0,
-			asr: asr.unwrap_or(MeanTimeType::Standard),
+			dhuhr: 0.0,
+			asr: asr.unwrap_or(AsrJuristic::Standard),
 			maghrib: maghrib.unwrap_or(CalculationType::Minutes(0.0)),
 			isha,
-			midnight: midnight.unwrap_or(MeanTimeType::Standard),
+			midnight: midnight.unwrap_or(MidnightMethod::Standard),
 		}
 	}
 
@@ -61,7 +69,7 @@ impl CalculationMethod {
 
 /// The calculation methods
 pub enum CalculationMethods {
-	/// Muslim World Leage
+	/// Muslim World League
 	MWL,
 	/// Islamic Society of North America
 	ISNA,
@@ -71,6 +79,8 @@ pub enum CalculationMethods {
 	///
 	/// # Example
 	/// ~~~~
+	/// use prayers::prelude::*;
+	///
 	/// CalculationMethods::Makkah(true); // in the ramadan period
 	/// CalculationMethods::Makkah(false); // not in the ramadan period
 	/// ~~~~
@@ -87,55 +97,42 @@ pub enum CalculationMethods {
 	///
 	/// # Example
 	/// ~~~~
-	/// CalculationMethods::Custom(CalculationMethod::from(12.0, Calculation::Angle(13.0)));
+	/// use prayers::prelude::*;
+	///
+	/// CalculationMethods::Custom(CalculationMethod::from(12.0, CalculationType::Angle(13.0)));
 	/// CalculationMethods::Custom(CalculationMethod::new(
 	///		None,
 	///		13.0,
 	///		None,
 	///		Some(CalculationType::Angle(6.0)),
 	///		CalculationType::Angle(13.0),
-	///		Some(MeanTimeType::Jafari),
+	///		Some(MidnightMethod::Jafari),
 	///	));
 	/// ~~~~
 	Custom(CalculationMethod),
-}
-
-/// Latitude, Longitude, Altitude (default to 0, in meters)
-///
-/// # Example
-/// ~~~~
-/// Coordinates(46, 69, None);
-/// Coordinates(46, 69, 25);
-/// ~~~~
-pub struct Coordinates(pub f64, pub f64, pub f64);
-impl Coordinates {
-	/// altitude in meters
-	pub fn new(latitude: f64, longitude: f64, altitude: Option<f64>) -> Coordinates {
-		Coordinates(latitude, longitude, altitude.unwrap_or(0.0))
-	}
 }
 
 #[derive(Debug)]
 /// Represents prayer times
 pub struct PrayerTimes {
 	/// Imsak
-	imsak: f64,
+	pub imsak: f64,
 	/// Fajr
-	fajr: f64,
+	pub fajr: f64,
 	/// Sunrise
-	sunrise: f64,
+	pub sunrise: f64,
 	/// Dhur
-	dhuhr: f64,
+	pub dhuhr: f64,
 	/// Asr
-	asr: f64,
+	pub asr: f64,
 	/// Sunset
-	sunset: f64,
+	pub sunset: f64,
 	/// Maghrif
-	maghrib: f64,
+	pub maghrib: f64,
 	/// Isha
-	isha: f64,
+	pub isha: f64,
 	/// Middle of the night
-	midnight: f64,
+	pub midnight: f64,
 }
 
 /// The method to use for higher latitudes
@@ -184,7 +181,7 @@ impl PrayerManager {
 		}
 	}
 
-	/// Get calculation parameters from a `CalculationMethods`
+	/// Get calculation parameters from a [`CalculationMethods`](CalculationMethods)
 	pub fn get_calculation_method(calculation_method: CalculationMethods) -> CalculationMethod {
 		match calculation_method {
 			CalculationMethods::MWL => CalculationMethod::from(18.0, CalculationType::Angle(17.0)),
@@ -201,7 +198,7 @@ impl PrayerManager {
 				None,
 				Some(CalculationType::Angle(4.5)),
 				CalculationType::Angle(14.0),
-				Some(MeanTimeType::Jafari),
+				Some(MidnightMethod::Jafari),
 			),
 			CalculationMethods::Jafari => CalculationMethod::new(
 				None,
@@ -209,7 +206,7 @@ impl PrayerManager {
 				None,
 				Some(CalculationType::Angle(4.0)),
 				CalculationType::Angle(14.0),
-				Some(MeanTimeType::Jafari),
+				Some(MidnightMethod::Jafari),
 			),
 			CalculationMethods::MF => CalculationMethod::from(12.0, CalculationType::Angle(12.0)),
 			CalculationMethods::Custom(value) => value,
@@ -220,10 +217,12 @@ impl PrayerManager {
 	///
 	/// # Example
 	/// ~~~~
-	/// let prayer_manager = PrayerManager::new(CalculationMethods::MWL);
+	/// use prayers::prelude::*;
+	///
+	/// let prayer_manager = PrayerManager::new(CalculationMethods::MWL, None);
 	///
 	/// let a_date = Utc.ymd(2021, 4, 12);
-	/// let a_house = Coordinates(38.8976763, -77.036529, 18);
+	/// let a_house = Coordinates(38.8976763, -77.036529, 18.0);
 	/// let prayers = prayer_manager.get_times(a_date, a_house);
 	/// ~~~~
 	pub fn get_times(&self, date: Date<Utc>, coords: Coordinates) -> PrayerTimes {
@@ -239,7 +238,7 @@ impl PrayerManager {
 			true,
 		) - adjust;
 
-		let mut fajr = sun_angle_time(julian_day, coords.0, method.fajr, 5.0 / 24.0, true);
+		let mut fajr = sun_angle_time(julian_day, coords.0, method.fajr, 5.0 / 24.0, true) - adjust;
 
 		let sunrise = sun_angle_time(
 			julian_day,
@@ -249,7 +248,7 @@ impl PrayerManager {
 			true,
 		) - adjust;
 
-		let dhuhr = mid_day(julian_day, 12.0 / 24.0) - adjust + method.duhr;
+		let dhuhr = mid_day(julian_day, 12.0 / 24.0) - adjust + method.dhuhr / 60.0;
 
 		let asr = PrayerManager::asr_time(julian_day, coords.0, &method.asr, 13.0 / 24.0) - adjust;
 
@@ -266,7 +265,7 @@ impl PrayerManager {
 			coords.0,
 			method.maghrib.unwrap(),
 			18.0 / 24.0,
-			true,
+			false,
 		) - adjust;
 
 		let mut isha = sun_angle_time(
@@ -282,9 +281,9 @@ impl PrayerManager {
 
 			imsak = self.adjust_highlat_time(imsak, sunrise, method.imsak.unwrap(), night_time, true);
 			fajr = self.adjust_highlat_time(fajr, sunrise, method.fajr, night_time, true);
-			isha = self.adjust_highlat_time(isha, sunset, method.isha.unwrap(), night_time, false);
 			maghrib =
 				self.adjust_highlat_time(maghrib, sunset, method.maghrib.unwrap(), night_time, false);
+			isha = self.adjust_highlat_time(isha, sunset, method.isha.unwrap(), night_time, false);
 		}
 
 		if let CalculationType::Minutes(minutes) = method.imsak {
@@ -297,10 +296,11 @@ impl PrayerManager {
 			isha = maghrib - minutes / 60.0;
 		}
 
-		let midnight = match method.midnight {
-			MeanTimeType::Standard => time_diff(sunset, fajr),
-			MeanTimeType::Jafari => time_diff(sunset, sunrise),
-		} / 2.0;
+		let midnight = sunset
+			+ match method.midnight {
+				MidnightMethod::Standard => time_diff(sunset, sunrise),
+				MidnightMethod::Jafari => time_diff(sunset, fajr),
+			} / 2.0;
 
 		PrayerTimes {
 			imsak,
@@ -330,11 +330,11 @@ impl PrayerManager {
 		base + if ccw { -portion } else { portion }
 	}
 
-	fn asr_time(julian_day: f64, latitude: f64, factor_type: &MeanTimeType, time: f64) -> f64 {
+	fn asr_time(julian_day: f64, latitude: f64, factor_type: &AsrJuristic, time: f64) -> f64 {
 		let decl = sun_position(julian_day + time).0;
 		let factor = match factor_type {
-			MeanTimeType::Standard => 0.0,
-			MeanTimeType::Jafari => 1.0,
+			AsrJuristic::Standard => 1.0,
+			AsrJuristic::Hanafi => 2.0,
 		};
 
 		let angle = -dmath::arccot(&(factor + dmath::tan(&(latitude - decl).abs())));
