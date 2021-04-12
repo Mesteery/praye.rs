@@ -1,6 +1,17 @@
 use crate::dmath;
 use chrono::{Date, Datelike, Utc};
 
+/// Latitude, Longitude, Altitude (default to 0, in meters)
+///
+/// # Example
+/// ~~~~
+/// use prayers::*;
+///
+/// Coordinates(46.0, 69.0, 0.0);
+/// Coordinates(46.0, 69.0, 25.0);
+/// ~~~~
+pub struct Coordinates(pub f64, pub f64, pub f64);
+
 pub fn get_julian_day(date: &Date<Utc>) -> f64 {
 	let mut year = date.year() as f64;
 	let mut month = date.month() as f64;
