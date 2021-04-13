@@ -10,6 +10,7 @@ use chrono::{Date, Datelike, Utc};
 /// Coordinates(46.0, 69.0, 0.0);
 /// Coordinates(46.0, 69.0, 25.0);
 /// ~~~~
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Coordinates(pub f64, pub f64, pub f64);
 
 pub fn get_julian_day(date: &Date<Utc>) -> f64 {
