@@ -5,9 +5,9 @@ _Lightweight and highly accurate low-level library for calculating (Islamic) pra
 ## Usage
 
 ```rust
-use prayers::{CalculationMethods, Coordinates, PrayerManager, TimeZone, Utc};
+use prayers::{CalculationMethods, Coordinates, HightLatMethods, PrayerManager, TimeZone, Utc};
 
-let prayer_manager = PrayerManager::new(CalculationMethods::MWL, None);
+let prayer_manager = PrayerManager::new(CalculationMethods::MWL, Some(HightLatMethods::NightMiddle));
 
 let a_date = Utc.ymd(2021, 4, 12);
 let a_house = Coordinates(38.8976763, -77.036529, 18.0);

@@ -3,8 +3,11 @@ use crate::dmath;
 use chrono::{Date, Utc};
 
 /// A calculation type
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub enum CalculationType {
+	/// A degree value
 	Angle(f64),
+	/// A minutes value
 	Minutes(f64),
 }
 impl CalculationType {
@@ -15,7 +18,8 @@ impl CalculationType {
 	}
 }
 
-/// The mean time type
+/// The midnight method
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub enum MidnightMethod {
 	/// from Sunset to Sunrise
 	Standard,
@@ -24,12 +28,16 @@ pub enum MidnightMethod {
 }
 
 /// The asr juristic methods
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub enum AsrJuristic {
+	/// factor: 1
 	Standard,
+	/// factor: 2
 	Hanafi,
 }
 
 /// Represents a calculation method (parameters)
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct CalculationMethod {
 	imsak: CalculationType,
 	/// angle
@@ -43,6 +51,7 @@ pub struct CalculationMethod {
 }
 
 impl CalculationMethod {
+	/// Initialize a CalculationMethod
 	pub fn new(
 		imsak: Option<CalculationType>,
 		fajr: f64,
@@ -62,12 +71,14 @@ impl CalculationMethod {
 		}
 	}
 
+	/// Create a CalculationMethod from fajr (angle, degree) and isha
 	pub fn from(fajr: f64, isha: CalculationType) -> CalculationMethod {
 		CalculationMethod::new(None, fajr, None, None, isha, None)
 	}
 }
 
 /// The calculation methods
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub enum CalculationMethods {
 	/// Muslim World League
 	MWL,
@@ -112,8 +123,8 @@ pub enum CalculationMethods {
 	Custom(CalculationMethod),
 }
 
-#[derive(Debug)]
 /// Represents prayer times
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct PrayerTimes {
 	/// Imsak
 	pub imsak: f64,
@@ -138,6 +149,7 @@ pub struct PrayerTimes {
 /// The method to use for higher latitudes
 ///
 /// http://praytimes.org/calculation#Higher_Latitudes
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub enum HightLatMethods {
 	/// Middle of the Night
 	///
@@ -168,6 +180,19 @@ fn time_diff(time1: f64, time2: f64) -> f64 {
 	dmath::fix_hour(time2 - time1)
 }
 
+/// The prayer manager
+///
+/// # Example
+/// ~~~~
+/// use prayers::*;
+///
+/// let prayer_manager = PrayerManager::new(CalculationMethods::MWL, Some(HightLatMethods::NightMiddle));
+///
+/// let a_date = Utc.ymd(2021, 4, 12);
+/// let a_house = Coordinates(38.8976763, -77.036529, 18.0);
+/// let prayers = prayer_manager.get_times(a_date, a_house);
+/// ~~~~
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct PrayerManager {
 	method: CalculationMethod,
 	high_lats: Option<HightLatMethods>,
@@ -219,7 +244,7 @@ impl PrayerManager {
 	/// ~~~~
 	/// use prayers::*;
 	///
-	/// let prayer_manager = PrayerManager::new(CalculationMethods::MWL, None);
+	/// let prayer_manager = PrayerManager::new(CalculationMethods::MWL, Some(HightLatMethods::NightMiddle));
 	///
 	/// let a_date = Utc.ymd(2021, 4, 12);
 	/// let a_house = Coordinates(38.8976763, -77.036529, 18.0);
